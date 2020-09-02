@@ -10,15 +10,10 @@ public class BezierGUI : MonoBehaviour
     public GameObject point;
     public float circleDiameter;
     public float lineLength;
+    private int numberOfPoints = 30;
 
     // Start is called before the first frame update
     void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
     {
         nodes = new List<Transform>();
         for (int i = 0; i < transform.childCount; i++)
@@ -27,16 +22,27 @@ public class BezierGUI : MonoBehaviour
         }
     }
 
+    // Update is called once per frame
+    void Update()
+    {
+        //nodes = new List<Transform>();
+        //for (int i = 0; i < transform.childCount; i++)
+        //{
+        //    nodes.Add(transform.GetChild(i));
+        //}
+    }
+
     
     public void createNode()
     {
         GameObject node = Instantiate(point, transform);
         node.transform.position = (nodes[0].position + nodes[nodes.Count - 1].position) / 2;
-        //nodes.Add(node.transform);
+        nodes.Add(node.transform);
     }
 
     private void clear()
     {
+        nodes.Clear();
         foreach (Transform tr in transform.GetComponentsInChildren<Transform>())
         {
             try
@@ -45,7 +51,6 @@ public class BezierGUI : MonoBehaviour
             }
             catch (System.Exception e) { }
         }
-        //nodes.Clear();
     }
 
     public void createCircle()
@@ -53,20 +58,20 @@ public class BezierGUI : MonoBehaviour
         clear();
         GameObject node = Instantiate(point, transform);
         node.transform.localPosition = new Vector3(0, 0, circleDiameter / 2);
-        //nodes.Add(node.transform);
-        node.transform.GetChild(1).localPosition = new Vector3(circleDiameter / 2, 0, 0);
+        nodes.Add(node.transform);
+        node.transform.GetChild(1).localPosition = new Vector3(circleDiameter / 4, 0, 0);
         node = Instantiate(point, transform);
         node.transform.localPosition = new Vector3(circleDiameter / 2, 0, 0);
-        //nodes.Add(node.transform);
-        node.transform.GetChild(1).localPosition = new Vector3(0, 0, 0);
+        nodes.Add(node.transform);
+        node.transform.GetChild(1).localPosition = new Vector3(0, 0, -circleDiameter / 4);
         node = Instantiate(point, transform);
         node.transform.localPosition = new Vector3(0, 0, -circleDiameter / 2);
-        //nodes.Add(node.transform);
-        node.transform.GetChild(1).localPosition = new Vector3(-circleDiameter / 2, 0, 0);
+        nodes.Add(node.transform);
+        node.transform.GetChild(1).localPosition = new Vector3(-circleDiameter / 4, 0, 0);
         node = Instantiate(point, transform);
         node.transform.localPosition = new Vector3(-circleDiameter / 2, 0, 0);
-        //nodes.Add(node.transform);
-        node.transform.GetChild(1).localPosition = new Vector3(0, 0, 0);
+        nodes.Add(node.transform);
+        node.transform.GetChild(1).localPosition = new Vector3(0, 0, circleDiameter / 4);
         closed = true;
     }
 
@@ -76,23 +81,23 @@ public class BezierGUI : MonoBehaviour
         nodes.Clear();
         GameObject node = Instantiate(point, transform);
         node.transform.localPosition = new Vector3(0, 0, -lineLength/2);
-        //nodes.Add(node.transform);
+        nodes.Add(node.transform);
         node.transform.GetChild(1).localPosition = new Vector3(0, 0, 0);
         node = Instantiate(point, transform);
         node.transform.localPosition = new Vector3(0, 0, lineLength / 2);
-        //nodes.Add(node.transform);
+        nodes.Add(node.transform);
         node.transform.GetChild(1).localPosition = new Vector3(0, 0, 0);
     }
 
     private void OnDrawGizmos()
     {
+        //nodes = new List<Transform>();
+        //for (int i = 0; i < transform.childCount; i++)
+        //{
+        //    nodes.Add(transform.GetChild(i));
+        //}
         if (nodes.Count >= 2)
         {
-            nodes = new List<Transform>();
-            for(int i = 0; i<transform.childCount; i++)
-            {
-                nodes.Add(transform.GetChild(i));
-            }
             Transform node1 = nodes[0];
             //while (node1 == null)
             //{
@@ -112,11 +117,12 @@ public class BezierGUI : MonoBehaviour
                 k++;
                 Gizmos.color = Color.white;
                 Vector3 previousPoint = node1.position;
-                for (float i = 0; i <= 30; i++)
+                for (float i = 0; i <= numberOfPoints; i++)
                 {
                     Vector3 point = Beizer.Coordinates(node1.position, node1.GetChild(node1.childCount - 1).transform.position,
-                                                        node2.GetChild(0).transform.position, node2.position, i / 30);
+                                                        node2.GetChild(0).transform.position, node2.position, i / numberOfPoints);
                     Gizmos.DrawLine(previousPoint, point);
+                    Gizmos.DrawSphere(previousPoint, 0.1f);
                     previousPoint = point;
                 }
 
