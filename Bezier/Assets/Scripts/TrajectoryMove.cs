@@ -10,6 +10,11 @@ public class TrajectoryMove : MonoBehaviour
     private int i = 0;
     private float t = 0;
     public float speed = 0.001f;
+    public float rotationY = 0;
+    public float maxDeviation;
+    private Animator animator;
+    public string animationName;
+    private Vector3 deviation;
 
     /*
      * Равномерное движение
@@ -30,6 +35,9 @@ public class TrajectoryMove : MonoBehaviour
             if (tr!=transform) nodes.Add(tr);
         }
         closed = transform.parent.GetComponentInChildren<BezierGUI>().closed;
+        animator = transform.GetComponent<Animator>();
+        animator.Play(animationName, 0, Random.Range(0f, 1f));//= Random.Range(0, 1);
+        deviation = new Vector3(Random.Range(-maxDeviation, maxDeviation), Random.Range(-maxDeviation, maxDeviation), Random.Range(-maxDeviation, maxDeviation));
     }
 
     // Update is called once per frame
@@ -39,9 +47,11 @@ public class TrajectoryMove : MonoBehaviour
         {
 
             transform.position = Beizer.Coordinates(nodes[i].position, nodes[i].GetChild(nodes[i].childCount - 1).transform.position, 
-                                               nodes[(i+1)%nodes.Count].GetChild(0).transform.position, nodes[(i + 1) % nodes.Count].position, t);
+                                               nodes[(i+1)%nodes.Count].GetChild(0).transform.position, nodes[(i + 1) % nodes.Count].position, t)+deviation;
             transform.rotation = Quaternion.LookRotation(Beizer.firstDerivative(nodes[i].position, nodes[i].GetChild(nodes[i].childCount - 1).transform.position,
                                                nodes[(i + 1) % nodes.Count].GetChild(0).transform.position, nodes[(i + 1) % nodes.Count].position, t));
+            transform.Rotate(new Vector3(0, 1, 0), rotationY);
+
 
             /*
             * Равномерное движение
